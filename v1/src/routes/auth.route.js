@@ -2,6 +2,7 @@ import { Router } from "express";
 import { login } from "../controllers/auth.controller.js";
 import { protect } from "../middleware/authMiddleware.js";
 import dotenv from "dotenv";
+import supabase from "../config/authConfig/supabase.js";
 
 dotenv.config();
 
