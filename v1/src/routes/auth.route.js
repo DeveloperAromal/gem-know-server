@@ -26,8 +26,6 @@ router.get("/auth/protected/me", protect, async (req, res) => {
     if (!admno) {
       return res.status(400).json({ error: "Admission number not found" });
     }
-
-    // Step 2: Call the /api/v1/user?admno=<admno> endpoint
     const apiResponse = await axios.get(
       `${process.env.API_BASE_URL}/api/v1/user?admno=${admno}`
     );
