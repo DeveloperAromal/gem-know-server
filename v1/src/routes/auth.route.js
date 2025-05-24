@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login } from "../controllers/auth.controller.js";
+import { login, resetPassword } from "../controllers/auth.controller.js";
 import { protect } from "../middleware/authMiddleware.js";
 import dotenv from "dotenv";
 import supabase from "../config/authConfig/supabase.js";
@@ -8,7 +8,9 @@ import axios from "axios";
 dotenv.config();
 
 const router = Router();
+
 router.post("/auth/login", login);
+router.post("/api/v1/reset-password", resetPassword);
 
 router.get("/auth/protected/me", protect, async (req, res) => {
   try {
@@ -30,7 +32,6 @@ router.get("/auth/protected/me", protect, async (req, res) => {
       `${process.env.API_BASE_URL}/api/v1/user?admno=${admno}`
     );
 
-    // Step 3: Return the user data from the API
     res.json({
       message: "Secure route",
       user: req.user,
@@ -41,4 +42,5 @@ router.get("/auth/protected/me", protect, async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
 export default router;

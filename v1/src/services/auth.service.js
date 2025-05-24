@@ -19,3 +19,20 @@ export const loginService = async ({ username, password }) => {
 
   return token;
 };
+
+export const resetPasswordService = async ({ email, password }) => {
+  const { data, error } = await supabase
+    .from("s_auth")
+    .update({ password })
+    .eq("email", email)
+    .select()
+    .single();
+
+  if (error || !data) {
+    throw new Error(
+      "Failed to reset password. User not found or database error."
+    );
+  }
+
+  return { message: "Password reset successfully" };
+};
