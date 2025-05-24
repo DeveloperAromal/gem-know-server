@@ -3,22 +3,41 @@ import { generateToken } from "../utils/jwt.js";
 import { handleOtpRequest } from "../services/email_otp_.service.js";
 
 export const loginService = async ({ username, password }) => {
-  const { data, error } = await supabase
+  // Check s_auth table
+  let { data: sData, error: sError } = await supabase
     .from("s_auth")
     .select("*")
     .eq("username", username)
     .eq("password", password)
     .single();
 
-  if (error || !data) return null;
+  if (sData && !sError) {
+    const token = generateToken({
+      id: sData.id,
+      username: sData.username,
+      role: sData.role,
+    });
+    return token;
+  }
 
-  const token = generateToken({
-    id: data.id,
-    username: data.username,
-    role: data.role,
-  });
+  // Check t_auth table if no match in s_auth
+  let { data: tData, error: tError } = await supabase
+    .from("t_auth")
+    .select("*")
+    .eq("username", username)
+    .eq("password", password)
+    .single();
 
-  return token;
+  if (tData && !tError) {
+    const token = generateToken({
+      id: tData.id,
+      username: tData.username,
+      role: tData.role,
+    });
+    return token;
+  }
+
+  return null;
 };
 
 export const resetPasswordService = async ({ email, password }) => {
@@ -39,21 +58,37 @@ export const resetPasswordService = async ({ email, password }) => {
 };
 
 export const getEmailAndSendOtpService = async ({ username }) => {
-  const { data, error } = await supabase
+  // Check s_auth table
+  let { data: sData, error: sError } = await supabase
     .from("s_auth")
     .select("email")
     .eq("username", username)
     .single();
 
-  if (error || !data) {
-    throw new Error("Username not found");
+  if (sData && !sError) {
+    const email = sData.email;
+    if (!email) {
+      throw new Error("No email associated with this username");
+    }
+    await handleOtpRequest(email);
+    return { email, message: "OTP sent successfully" };
   }
 
-  const email = data.email;
-  if (!email) {
-    throw new Error("No email associated with this username");
+  // Check t_auth table if no match in s_auth
+  let { data: tData, error: tError } = await supabase
+    .from("t_auth")
+    .select("email")
+    .eq("username", username)
+    .single();
+
+  if (tData && !tError) {
+    const email = tData.email;
+    if (!email) {
+      throw new Error("No email associated with this username");
+    }
+    await handleOtpRequest(email);
+    return { email, message: "OTP sent successfully" };
   }
 
-  await handleOtpRequest(email);
-  return { email, message: "OTP sent successfully" };
+  throw new Error("Username not found");
 };

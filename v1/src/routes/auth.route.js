@@ -19,29 +19,53 @@ router.post("/auth/forget/get-email-and-send-otp", getEmailAndSendOtp);
 
 router.get("/auth/protected/me", protect, async (req, res) => {
   try {
-    const { data, error } = await supabase
+    // Check s_auth table
+    let { data: sData, error: sError } = await supabase
       .from("s_auth")
       .select("admno")
       .eq("id", req.user.id)
       .single();
 
-    if (error || !data) {
-      return res.status(404).json({ error: "User not found" });
+    if (sData && !sError) {
+      const admno = sData.admno;
+      if (!admno) {
+        return res.status(400).json({ error: "Admission number not found" });
+      }
+      const apiResponse = await axios.get(
+        `${process.env.API_BASE_URL}/api/v1/user?admno=${admno}`
+      );
+
+      return res.json({
+        message: "Secure route",
+        user: req.user,
+        userData: apiResponse.data,
+      });
     }
 
-    const admno = data.admno;
-    if (!admno) {
-      return res.status(400).json({ error: "Admission number not found" });
-    }
-    const apiResponse = await axios.get(
-      `${process.env.API_BASE_URL}/api/v1/user?admno=${admno}`
-    );
+    // Check t_auth table if no match in s_auth
+    let { data: tData, error: tError } = await supabase
+      .from("t_auth")
+      .select("admno")
+      .eq("id", req.user.id)
+      .single();
 
-    res.json({
-      message: "Secure route",
-      user: req.user,
-      userData: apiResponse.data,
-    });
+    if (tData && !tError) {
+      const admno = tData.admno;
+      if (!admno) {
+        return res.status(400).json({ error: "Admission number not found" });
+      }
+      const apiResponse = await axios.get(
+        `${process.env.API_BASE_URL}/api/v1/user?admno=${admno}`
+      );
+
+      return res.json({
+        message: "Secure route",
+        user: req.user,
+        userData: apiResponse.data,
+      });
+    }
+
+    return res.status(404).json({ error: "User not found" });
   } catch (err) {
     console.error("Protected Route Error:", err);
     res.status(500).json({ error: "Server error" });
