@@ -45,17 +45,17 @@ router.get("/auth/protected/me", protect, async (req, res) => {
     // Check t_auth table if no match in s_auth
     let { data: tData, error: tError } = await supabase
       .from("t_auth")
-      .select("admno")
+      .select("username")
       .eq("id", req.user.id)
       .single();
 
     if (tData && !tError) {
-      const admno = tData.admno;
-      if (!admno) {
-        return res.status(400).json({ error: "Admission number not found" });
+      const username = tData.username;
+      if (!username) {
+        return res.status(400).json({ error: "Username not found" });
       }
       const apiResponse = await axios.get(
-        `${process.env.API_BASE_URL}/api/v1/user?admno=${admno}`
+        `${process.env.API_BASE_URL}/api/v1/teacher?username=${username}`
       );
 
       return res.json({
