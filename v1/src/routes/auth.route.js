@@ -10,7 +10,7 @@ dotenv.config();
 const router = Router();
 
 router.post("/auth/login", login);
-router.post("/api/v1/reset-password", resetPassword);
+router.post("/auth/reset/reset-password", resetPassword);
 
 router.get("/auth/protected/me", protect, async (req, res) => {
   try {
