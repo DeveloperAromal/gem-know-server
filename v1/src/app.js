@@ -7,6 +7,7 @@ import userRoutes from "./routes/user.route.js";
 import resultRoutes from "./routes/result.route.js";
 import absenteeRoutes from "./routes/absentee.route.js";
 import emailOtp from "./routes/email_otp.route.js";
+import VerifyEmailOtp from "./routes/email_otp.route.js";
 import forgetPassword from "./routes/email_otp.route.js";
 
 dotenv.config();

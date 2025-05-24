@@ -6,7 +6,7 @@ import {
 } from "../controllers/auth.controller.js";
 import { protect } from "../middleware/authMiddleware.js";
 import dotenv from "dotenv";
-import supabase from "../config/auth configuration/supabase.js";
+import supabase from "../config/authConfig/supabase.js";
 import axios from "axios";
 
 dotenv.config();
