@@ -1,6 +1,7 @@
 import {
   loginService,
   resetPasswordService,
+  getEmailAndSendOtpService,
 } from "../services/auth.service.js";
 
 export const login = async (req, res) => {
@@ -27,6 +28,22 @@ export const resetPassword = async (req, res) => {
     res.status(200).json(result);
   } catch (err) {
     console.error("Reset Password Error:", err);
+    res.status(400).json({ error: err.message });
+  }
+};
+
+export const getEmailAndSendOtp = async (req, res) => {
+  const { username } = req.body;
+
+  if (!username) {
+    return res.status(400).json({ error: "Username is required" });
+  }
+
+  try {
+    const result = await getEmailAndSendOtpService({ username });
+    res.status(200).json(result);
+  } catch (err) {
+    console.error("Get Email and Send OTP Error:", err);
     res.status(400).json({ error: err.message });
   }
 };
